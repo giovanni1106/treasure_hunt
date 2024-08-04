@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+import os
+from enum import Enum
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,12 +33,18 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
-MY_APPS = []
+MY_APPS = [
+    "challenges",
+    "users",
+    "theme",
+]
 
 THIRD_PARTY_APPS = [
     "allauth",
     "allauth.account",
+    "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    "tailwind",
 ]
 
 DJANGO_APPS = [
@@ -45,12 +54,14 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + MY_APPS
 
 THIRD_PARTY_MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 DJANGO_MIDDLEWARE = [
@@ -89,12 +100,36 @@ WSGI_APPLICATION = "setup.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+class Database(Enum):
+    PROD = "prod"
+    DEV = "dev"
+
+
+database_choice = config("DJANGO_DB", default=Database.DEV.value)
+
+db = {
+    Database.PROD.value: {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("POSTGRES_DB"),
+        "USER": config("POSTGRES_USER"),
+        "PASSWORD": config("POSTGRES_PASSWORD"),
+        "HOST": config("DB_HOST", default="localhost"),
+        "PORT": config("DB_PORT", default="5432"),
+    },
+    Database.DEV.value: {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    },
 }
+
+DATABASES = {}
+if database_choice in db:
+    DATABASES["default"] = db[database_choice]
+else:
+    raise KeyError(f"Invalid DJANGO_DB value: {database_choice}")
 
 
 # Password validation
@@ -140,9 +175,19 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Allauth settings
 
+SITE_ID = 1
+
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
     # `allauth` specific authentication methods, such as login by email
     "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+# Tailwind settings
+
+TAILWIND_APP_NAME = "theme"
+
+INTERNAL_IPS = [
+    "127.0.0.1",
 ]

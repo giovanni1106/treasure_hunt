@@ -17,7 +17,9 @@ services:
     container_name: treasurehunt
     build: .
     command: >
-      sh -c "python manage.py makemigrations && python manage.py migrate &&
+      sh -c "python manage.py tailwind install &&
+             python manage.py makemigrations && 
+             python manage.py migrate &&
              python create_admin.py &&
              python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -34,6 +36,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DB_HOST=db
       - DB_PORT=5432
+      - DJANGO_DB=${DJANGO_DB}
       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
       - DJANGO_ADMIN_USERNAME=${DJANGO_ADMIN_USERNAME}
       - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD}
