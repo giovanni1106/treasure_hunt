@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgresql_treasurehunt
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - n1
+
+  web:
+    container_name: treasurehunt
+    build: .
+    command: >
+      sh -c "python manage.py makemigrations && python manage.py migrate &&
+             python create_admin.py &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - n1
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - DJANGO_ADMIN_USERNAME=${DJANGO_ADMIN_USERNAME}
+      - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD}
+      - DJANGO_ADMIN_EMAIL=${DJANGO_ADMIN_EMAIL}
+
+volumes:
+  pgdata:
+
+networks:
+  n1:
