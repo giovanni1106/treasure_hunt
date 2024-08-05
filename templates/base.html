@@ -1,0 +1,46 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Treasure Hunt{% endblock %}</title>
+    {% tailwind_css %}
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <!-- Navbar -->
+    <header>
+        {% component "navbar" %} {% endcomponent %}
+    </header>
+
+    <!-- Conteúdo principal -->
+    <main class="flex flex-col items-center min-h-screen px-4">
+        {% if messages %}
+        <div class="space-y-4 mb-4">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} shadow-lg">
+                <div>
+                    <span>{{ message }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="w-full max-w-4xl mt-4">
+            {% block content %}
+            <!-- O conteúdo dos outros templates será renderizado aqui -->
+            {% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-gray-800 text-center text-white py-4">
+        <div class="max-w-4xl mx-auto">
+            <span class="text-sm">&copy; 2024 Treasure Hunt</span>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends "account/base_entrance.html" %}
+{% load i18n %}
+{% load allauth account %}
+{% block head_title %}
+    {% trans "Entrar" %}
+{% endblock head_title %}
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-screen bg-base-200">
+    <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-center">{% trans "Entrar" %}</h1>
+        {% if not SOCIALACCOUNT_ONLY %}
+        {% setvar link %}
+        <a href="{{ signup_url }}" class="text-blue-500 hover:underline">
+        {% endsetvar %}
+        {% setvar end_link %}
+        </a>
+        {% endsetvar %}
+        <p class="text-center text-sm text-gray-600">
+            {% blocktranslate %}Ainda não tem uma conta? Então, por favor, {{ link }}cadastre-se{{ end_link }} primeiro.{% endblocktranslate %}
+        </p>
+        {% url 'account_login' as login_url %}
+        <form method="post" action="{{ login_url }}" class="space-y-4">
+            {% csrf_token %}
+            <div class="form-control">
+                {{ form.non_field_errors }}
+                {% for field in form.visible_fields %}
+                <div class="mb-4">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ field.label }}
+                    </label>
+                    {% if field.field.widget.input_type == "checkbox" %}
+                        <input type="checkbox" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                               class="checkbox checkbox-primary" {% if field.value %}checked{% endif %}>
+                    {% else %}
+                        <input type="{{ field.field.widget.input_type }}" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                               class="input input-bordered w-full text-white" value="{{ field.value|default_if_none:'' }}">
+                    {% endif %}
+                    {% if field.help_text %}
+                    <p class="text-sm text-gray-500">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                    <p class="text-red-500 text-sm">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {{ redirect_field }}
+            <div class="flex items-center justify-between">
+                <button type="submit" class="btn btn-primary w-full">{% trans "Entrar" %}</button>
+            </div>
+        </form>
+        {% endif %}
+        {% if LOGIN_BY_CODE_ENABLED or PASSKEY_LOGIN_ENABLED %}
+        <hr class="my-6">
+        <div class="space-y-4">
+            {% if PASSKEY_LOGIN_ENABLED %}
+            <button type="submit" form="mfa_login" id="passkey_login" class="btn btn-outline btn-primary w-full">
+                {% trans "Entrar com uma chave de segurança" %}
+            </button>
+            {% endif %}
+            {% if LOGIN_BY_CODE_ENABLED %}
+            <a href="{{ request_login_code_url }}" class="btn btn-outline btn-primary w-full">
+                {% trans "Enviar um código de acesso por e-mail" %}
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+        {% if SOCIALACCOUNT_ENABLED %}
+        <div class="divider">{% trans "ou" %}</div>
+        {% include "socialaccount/snippets/login.html" with page_layout="entrance" %}
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}
+{% block extra_body %}
+    {{ block.super }}
+    {% if PASSKEY_LOGIN_ENABLED %}
+        {% include "mfa/webauthn/snippets/login_script.html" with button_id="passkey_login" %}
+    {% endif %}
+{% endblock %}

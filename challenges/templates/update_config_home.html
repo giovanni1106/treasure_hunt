@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+Admin - Atualizar Configurações
+{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto p-4 bg-white shadow-md rounded">
+    <h2 class="text-2xl font-bold mb-4">Atualizar Configuração da Página Inicial</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="flex justify-between mt-4">
+            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            {% if config_home.banner %}
+            <button type="submit" name="delete_banner" class="btn btn-danger">Apagar Banner</button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}
+Home - Treasure Hunt
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Banner -->
+    {% if config_home.banner %}
+    <div class="relative h-64 bg-cover bg-center" style="background-image: url('{{ config_home.banner.url }}');">
+        <div class="absolute inset-0"></div>
+    </div>
+    {% endif %}
+
+    <!-- Título e Descrição -->
+    <div class="mt-8 text-center">
+        <h2 class="text-2xl font-semibold text-gray-800">{{ config_home.title }}</h2>
+        <p class="mt-4 text-gray-600">{{ config_home.description }}</p>
+    </div>
+
+    <!-- Linha de Separação -->
+    <hr class="my-8">
+
+    {% if user.is_authenticated %}
+    {% if challenges %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for challenge in challenges %}
+        {% if user not in challenge.users_completed.all and not user.is_staff and not challenge.is_free %}
+        <div class="relative p-6 bg-white rounded-lg shadow-lg blur-sm">
+            <h3 class="text-xl font-bold text-gray-900">Desafio não liberado</h3>
+            <p class="mt-2 text-gray-700">Infelizmente você não liberou esse desafio ainda</p>
+        </div>
+        {% else %}
+        <div class="relative p-6 bg-white rounded-lg shadow-lg">
+            <h3 class="text-xl font-bold text-gray-900">{{ challenge.title }}</h3>
+            <p class="mt-2 text-gray-700">{{ challenge.description }}</p>
+            <div class="mt-4">
+                <a href="{% url 'challenge_detail' challenge.id %}" class="btn btn-secondary">Detalhar</a>
+                {% if user.is_staff %}
+                <!-- Botões de administração -->
+                <a href="{% url 'edit_challenge' challenge.id %}" class="btn btn-warning">Editar</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        <!-- Botão de adicionar desafio -->
+        {% if user.is_staff %}
+        <div class="flex justify-center mt-8">
+            <a href="{% url 'create_challenge' %}" class="flex items-center justify-center w-16 h-16 bg-blue-500 text-white rounded-full shadow-lg hover:bg-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="text-center">
+        <h3>Ainda não temos desafios cadastrados no momento 😪</h3>
+    </div>
+    {% endif %}
+    {% else %}
+    <!-- Opções de Login e Registro -->
+    <div class="flex justify-center items-center h-64">
+        <div class="text-center">
+            <h2 class="text-xl font-semibold text-gray-700">Por favor, realize o login para ver os desafios</h2>
+            <div class="mt-4">
+                <a href="{% url 'account_login' %}" class="btn btn-primary">Login</a>
+                <a href="{% url 'account_signup' %}" class="btn btn-secondary ml-4">Registrar</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
