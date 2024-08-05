@@ -21,5 +21,3 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 80
 
-RUN pip install gunicorn
-
