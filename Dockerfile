@@ -17,5 +17,9 @@ COPY . /code/
 
 ENV PYTHONUNBUFFERED=1
 
-EXPOSE 8000
+RUN python manage.py collectstatic --noinput
+
+EXPOSE 80
+
+RUN pip install gunicorn
 

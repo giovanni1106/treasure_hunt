@@ -23,16 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-&mxd2xz-r%1xh*k+nq+(b#(%n+5w1z5e86@w)l4!9xzcv#rw#2"
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = [
-    "0.0.0.0",
-    "localhost",
-    "127.0.0.1",
-]
+ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1", "34.95.227.96"]
+
+CSRF_TRUSTED_ORIGINS = ["http://34.95.227.96"]
 
 
 # Application definition
@@ -187,6 +185,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
 
 # Additional locations of static files to django_components
 STATICFILES_DIRS = [

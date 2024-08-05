@@ -17,15 +17,14 @@ services:
     container_name: treasurehunt
     build: .
     command: >
-      sh -c "python manage.py tailwind install &&
-             python manage.py makemigrations && 
+      sh -c "python manage.py tailwind build &&
+             python manage.py makemigrations &&
              python manage.py migrate &&
              python create_admin.py &&
-             python manage.py runserver 0.0.0.0:8000"
+             gunicorn setup.wsgi:application --bind 0.0.0.0:80 --workers 3"
     volumes:
       - .:/code
-    ports:
-      - "8000:8000"
+      - static_volume:/code/staticfiles
     depends_on:
       - db
     networks:
@@ -42,8 +41,24 @@ services:
       - DJANGO_ADMIN_PASSWORD=${DJANGO_ADMIN_PASSWORD}
       - DJANGO_ADMIN_EMAIL=${DJANGO_ADMIN_EMAIL}
 
+  nginx:
+    image: nginx:latest
+    container_name: nginx_treasurehunt
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/code/static
+      - media_volume:/code/media
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    networks:
+      - n1
+
 volumes:
   pgdata:
+  static_volume:
+  media_volume:
 
 networks:
   n1:
